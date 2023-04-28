@@ -3,13 +3,13 @@ $_SERVER = "localhost";
 $_DB_NAME = "projseguranca";
 $_USERNAME = "root";
 $_PASSWORD = "132465";
-
+$con = null;
 
 try {
-    $_coon = new mysqli($_SERVER, $_USERNAME, $_PASSWORD, $_DB_NAME);
-    echo "fodase";
+    $con = pg_connect("host=$_SERVER user=$_USERNAME 
+                        password=$_PASSWORD dbname=$_DB_NAME");
 } catch (Exception $e) {
-    die("A conexão com o banco de dados falhou: " . $conn->connect_error);
+    die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
 if (isset($_POST['username'])) {
@@ -21,13 +21,13 @@ if (isset($_POST['password'])) {
 }
 
 if (!empty($username) && !empty($password)) {
-    $select = "SELECT usuario from usuario where usuario LIKE '%$username%'";
+    $sql_select = "SELECT usuario from usuario where usuario LIKE '%$username%'";
 
     try {
-        $resp = mysqli_query($_coon, $select);
-        if (mysqli_num_rows($resp) == 0) {
-            $sql = "INSERT INTO usuario(usuario, senha) VALUES ('$username', '$password')";
-            if ($_coon->query($sql)) {
+        $result = pg_query($con, $sql_select);
+        if (pg_num_rows($result) == 0) {
+            $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$password')";
+            if (pg_query($con, $sql_insert)) {
                 echo 'Cadastro';
             };
         } else {
@@ -41,4 +41,4 @@ if (!empty($username) && !empty($password)) {
 
 }
 
-$_coon->close();
+pg_close($con);
