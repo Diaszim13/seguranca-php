@@ -13,6 +13,14 @@ password=$_PASSWORD dbname=$_DB_NAME");
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
+if (isset($_POST['username'])) {
+    $username = $_POST['username'];
+}
+if (isset($_POST['password'])) {
+
+    $password = $_POST['password'];
+}
+
 if (isset($_POST['firstname'])) {
     $firstname = $_POST['firstname'];
 }
@@ -41,18 +49,35 @@ if (isset($_POST['num'])) {
     $num = $_POST['num'];
 }
 
-if (!empty($firstname) && !empty($email) && !empty($cpf)) {
+$sql_select = "SELECT usuario from usuario where usuario LIKE '%$username%'";
+
     try {
-        $sql = "INSERT INTO perfil(firstname, lastname, email, cpf, superscription, neighborhood, num)
-                    VALUES ('$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
-        pg_query($con, $sql);
+        $result = pg_query($con, $sql_select);
+        if (pg_num_rows($result) == 0) {
+            $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$password')";
+            if ($r_insert = pg_query($con, $sql_insert)) {
+                $id = pg_last_oid($r_insert);
+                if (!empty($firstname) && !empty($email) && !empty($cpf) && !empty($id)) {
+                    try {
+                        $sql = "INSERT INTO perfil(id_perfil, id_usuario, firstname, lastname, email, cpf, superscription, neighborhood, num)
+                                    VALUES (nextval('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
+                        pg_query($con, $sql);
+                    } catch (Exception $e) {
+                        echo $e->getMessage();
+                    }
+                
+                } else {
+                    echo "Os campos nome, e-mail e cpf são obrigatórios.";
+                }
+            };
+        } else {
+            echo 'Ja cadastradoo';
+        }
+
     } catch (Exception $e) {
         echo $e->getMessage();
     }
 
 
-} else {
-    echo "Os campos nome, e-mail e cpf são obrigatórios.";
-}
 
 pg_close($con);
