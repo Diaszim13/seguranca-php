@@ -1,7 +1,9 @@
 CREATE TABLE USUARIO (
-	ID_USUARIO NUMERIC NOT NULL,
+	ID_USUARIO NUMERIC,
 	USUARIO VARCHAR(50) NOT NULL,
-	SENHA VARCHAR(50) NOT NULL
+	SENHA VARCHAR(50) NOT NULL,
+	constraint pk_usuario
+			primary key (id_usuario)
 );
 
 CREATE SEQUENCE SEQ_USUARIO
@@ -10,17 +12,25 @@ CREATE SEQUENCE SEQ_USUARIO
 	MAXVALUE 9999
 ;
 
-INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'),'TESTE1', 'teste1243');
-
-
-//ajustar
 CREATE TABLE perfil (
-	id 
-	firstname varchar2(50) not null,
-	lastname varchar2(50) not null,
-	email varchar2(200) not null,
-	cpf varchar2(20) not null,
+	id_perfil numeric,
+	id_usuario numeric not null,
+	firstname varchar(50) not null,
+	lastname varchar(50) not null,
+	email varchar(200) not null,
+	cpf varchar(20) not null,
 	superscription varchar(50),
 	neighborhood varchar(50),
-	num number,
+	num numeric,
+	constraint pk_perfil
+			primary key (id_perfil),
+	constraint fk_perfil_usuario
+			foreign key (id_usuario)
+				references usuario (id_usuario)
 );
+
+CREATE SEQUENCE SEQ_PERFIL
+	START 1
+	INCREMENT 1
+	MAXVALUE 9999
+;

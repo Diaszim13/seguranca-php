@@ -2,7 +2,7 @@
 $_SERVER = "localhost";
 $_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
-$_PASSWORD = "132465";
+$_PASSWORD = "1234";
 $con = null;
 
 
@@ -54,24 +54,28 @@ $sql_select = "SELECT usuario from usuario where usuario LIKE '%$username%'";
     try {
         $result = pg_query($con, $sql_select);
         if (pg_num_rows($result) == 0) {
-            $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$password')";
-            if ($r_insert = pg_query($con, $sql_insert)) {
-                $id = pg_last_oid($r_insert);
+            $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$password') RETURNING id_usuario";
+            $r_insert_usuario = pg_query($con, $sql_insert);
+            if ($r_insert_usuario) {
+                $id = pg_fetch_result($r_insert_usuario, 0);
                 if (!empty($firstname) && !empty($email) && !empty($cpf) && !empty($id)) {
-                    try {
+                   try {
                         $sql = "INSERT INTO perfil(id_perfil, id_usuario, firstname, lastname, email, cpf, superscription, neighborhood, num)
                                     VALUES (nextval('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
-                        pg_query($con, $sql);
+                        $r_insert_perfil = pg_query($con, $sql);
                     } catch (Exception $e) {
                         echo $e->getMessage();
                     }
-                
+                    if ($r_insert_perfil) {
+                        header("Location: index.html");
+                        exit();
+                    }
                 } else {
                     echo "Os campos nome, e-mail e cpf são obrigatórios.";
                 }
             };
         } else {
-            echo 'Ja cadastradoo';
+            echo 'O nome do usuario já está cadastrado';
         }
 
     } catch (Exception $e) {
