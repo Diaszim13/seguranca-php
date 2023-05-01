@@ -1,8 +1,9 @@
 <?php
-$_SERVER = "localhost";
-$_DB_NAME = "proj-seguranca";
-$_USERNAME = "postgres";
-$_PASSWORD = "132465";
+
+$_SERVER = $_ENV['$_SERVER'];
+$_DB_NAME = $_ENV['$_DB_NAME'];
+$_USERNAME = $_ENV['$_USERNAME'];
+$_PASSWORD = $_ENV['$_PASSWORD'];
 $con = null;
 
 try {

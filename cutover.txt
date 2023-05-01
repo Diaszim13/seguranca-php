@@ -13,7 +13,7 @@ CREATE SEQUENCE SEQ_USUARIO
 ;
 
 CREATE TABLE perfil (
-	id_perfil SERIAL PRIMARY KEY,
+	id_perfil numeric,
 	id_usuario numeric not null,
 	firstname varchar(50) not null,
 	lastname varchar(50) not null,
