@@ -21,7 +21,16 @@ if (isset($_POST['password'])) {
 }
 
 if (!empty($username) && !empty($password)) {
-    $sql_select = "SELECT usuario from usuario where usuario LIKE '$username' and senha LIKE '$password'";
+     // esse select não tem proteção nenhuma podendo assim ser possivel inserir no final da senha a segunte string '  OR 1 = 1 ' resultando em um retorno true em todos os casos
+    $sql_select = "select * from usuario where usuario = " . $username . ' AND senha = ' . $password; 
+
+    // este exemplo vai usar o pg_select tornando muito dificil de ser usado o sql injection
+    $sql_select = pg_select($con, 'usuarios', array('usuario' => $username, 'password' => $password));
+
+
+    $sql_select = "SELECT usuario from usuario where usuario LIKE '$username' and senha LIKE '$password';";
+
+
 
     try {
         $result = pg_query($con, $sql_select);
