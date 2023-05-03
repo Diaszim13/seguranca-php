@@ -1,9 +1,9 @@
 <?php
 
 $_SERVER = "localhost";
-$_DB_NAME = "projseguranca";
+$_DB_NAME = "proj-seguranca";
 $_USERNAME = "postgres";
-$_PASSWORD = "1234";
+$_PASSWORD = "132465";
 $con = null;
 
 session_start();
@@ -24,30 +24,45 @@ if (isset($_POST['password'])) {
 }
 
 if (!empty($username) && !empty($password)) {
-     // esse select não tem proteção nenhuma podendo assim ser possivel inserir no final da senha a segunte string '  OR 1 = 1 ' resultando em um retorno true em todos os casos
-    //$sql_select = "select * from usuario where usuario = " . $username . ' AND senha = ' . $password; 
-
-    // este exemplo vai usar o pg_select tornando muito dificil de ser usado o sql injection
-    //$sql_select = pg_select($con, 'usuario', array('usuario' => $username, 'senha' => $password));
+    $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha=$password"; // para acessar com qual quer usuario '132' OR 1=1
 
 
-    $sql_select = "SELECT id_usuario from usuario where usuario LIKE '$username' and senha LIKE '$password'";
+    // MODO SEGURO
+    // $username = pg_escape_string($username); // aqui vai tratar a string para não deixar adicionar comandos
+    // echo $password;
 
+    // $password = pg_escape_string($password);
+    // $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha='$password'";
+    // $result = pg_query($con, $query);
+
+    // $query = pg_prepare($con, "selc", "SELECT * FROM usuario WHERE usuario = $1 AND senha = $2");
+    // $result = pg_execute($con, "selc", array($username, $password));
+    // echo $password;
+
+    // try {
+    // }catch (PDOException $e)
+    // {
+    //     echo $e->getMessage();
+    // }
 
 
     try {
-        $result = pg_query($con, $sql_select);
-        $registro = pg_fetch_assoc($result);
-        $id = $registro["id_usuario"];
-        $sql_select_usuario = "SELECT firstname FROM perfil WHERE id_usuario = " . $id;
-        $result2 = pg_query($con, $sql_select_usuario);
-        $registro2 = pg_fetch_assoc($result2);
-        $usuario = $registro2["firstname"];
-        echo 'aqui';
-        if (pg_num_rows($result) == 1) {
-            $_SESSION['username'] = $usuario;
-            header("Location: home.php");
-            exit();
+        $result = pg_query($con, $query);
+        if(pg_num_rows($result) >= 1)
+        {
+            $registro = pg_fetch_assoc($result);
+            $id = $registro["id_usuario"];
+            $sql_select_usuario = "SELECT firstname FROM perfil WHERE id_usuario = " . $id;
+            $result2 = pg_query($con, $sql_select_usuario);
+            $registro2 = pg_fetch_assoc($result2);
+            $usuario = $registro2["firstname"];
+            if (pg_num_rows($result2) >= 1) {
+                $_SESSION['username'] = $usuario;
+                header("Location: home.php");
+                exit();
+            } else {
+                echo 'Usuario nao encontrado';
+            }
         } else {
             echo 'Usuario ou senha estão incorretos';
         }

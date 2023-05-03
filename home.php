@@ -3,7 +3,7 @@
 session_start();
 
 $text = $_SESSION['username'];
-$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+//$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 
 ?>
 <!DOCTYPE html>
@@ -25,7 +25,7 @@ $deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
         <div class="card m-5">
 
               <?php 
-              echo 'Olá ' . $deal_text;
+              echo 'Olá ' . $text;
               ?>
         </div>
         </div>
