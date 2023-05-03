@@ -1,9 +1,9 @@
 <?php
 
-$_SERVER = $_ENV['$_SERVER'];
-$_DB_NAME = $_ENV['$_DB_NAME'];
-$_USERNAME = $_ENV['$_USERNAME'];
-$_PASSWORD = $_ENV['$_PASSWORD'];
+$_SERVER = "localhost";
+$_DB_NAME = "projseguranca";
+$_USERNAME = "postgres";
+$_PASSWORD = "1234";
 $con = null;
 
 
@@ -51,7 +51,7 @@ if (isset($_POST['num'])) {
     $num = $_POST['num'];
 }
 
-$sql_select = "SELECT usuario from usuario where usuario LIKE '%$username%'";
+$sql_select = "SELECT usuario from usuario where usuario LIKE '" . $username . "'";
 
     try {
         $result = pg_query($con, $sql_select);
