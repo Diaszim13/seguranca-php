@@ -1,7 +1,7 @@
 <?php
 
 $_SERVER = "localhost";
-$_DB_NAME = "proj-seguranca";
+$_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
 $_PASSWORD = "132465";
 $con = null;
@@ -25,7 +25,6 @@ if (isset($_POST['password'])) {
 
 if (!empty($username) && !empty($password)) {
     $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha=$password"; // para acessar com qual quer usuario '132' OR 1=1
-
 
     // MODO SEGURO
     // $username = pg_escape_string($username); // aqui vai tratar a string para não deixar adicionar comandos
@@ -57,8 +56,9 @@ if (!empty($username) && !empty($password)) {
             $registro2 = pg_fetch_assoc($result2);
             $usuario = $registro2["firstname"];
             if (pg_num_rows($result2) >= 1) {
+                $_SESSION['id_usuario'] = $id;
                 $_SESSION['username'] = $usuario;
-                header("Location: home.php");
+                header("Location: profile.php");
                 exit();
             } else {
                 echo 'Usuario nao encontrado';

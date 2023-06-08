@@ -1,7 +1,7 @@
 <?php
 
 $_SERVER = "localhost";
-$_DB_NAME = "proj-seguranca";
+$_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
 $_PASSWORD = "132465";
 $con = null;
