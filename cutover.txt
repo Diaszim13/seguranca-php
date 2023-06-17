@@ -1,7 +1,7 @@
 CREATE TABLE USUARIO (
 	ID_USUARIO NUMERIC,
 	USUARIO VARCHAR(50) NOT NULL,
-	SENHA VARCHAR(50) NOT NULL,
+	SENHA VARCHAR(500) NOT NULL,
 	constraint pk_usuario
 			primary key (id_usuario)
 );

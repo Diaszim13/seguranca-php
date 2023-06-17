@@ -3,10 +3,16 @@
 $_SERVER = "localhost";
 $_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
-$_PASSWORD = "132465";
+$_PASSWORD = "1234";
 $con = null;
 
 session_start();
+
+if (isset($_SERVER["REMOTE_ADDR"])) {
+    $remoteHost = $_SERVER['REMOTE_ADDR']; //$_SERVER["REMOTE_HOST"];
+} else {
+    $remoteHost = "nada";
+}
 
 try {
     $con = pg_connect("host=$_SERVER user=$_USERNAME 
@@ -24,14 +30,14 @@ if (isset($_POST['password'])) {
 }
 
 if (!empty($username) && !empty($password)) {
-    $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha=$password"; // para acessar com qual quer usuario '132' OR 1=1
+    //$query = "SELECT * FROM usuario WHERE usuario= " . $username . " AND senha = " .$password; // para acessar com qual quer usuario '132' OR 1=1
 
     // MODO SEGURO
     // $username = pg_escape_string($username); // aqui vai tratar a string para não deixar adicionar comandos
     // echo $password;
 
-    // $password = pg_escape_string($password);
-    // $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha='$password'";
+    // $password = pg_escape_string($password); AND senha='$password'
+     $query = "SELECT * FROM usuario WHERE usuario='$username' ";
     // $result = pg_query($con, $query);
 
     // $query = pg_prepare($con, "selc", "SELECT * FROM usuario WHERE usuario = $1 AND senha = $2");
@@ -47,19 +53,24 @@ if (!empty($username) && !empty($password)) {
 
     try {
         $result = pg_query($con, $query);
-        if(pg_num_rows($result) >= 1)
+        $registro = pg_fetch_assoc($result);
+        $senhaRecuperada = $registro["senha"];
+        if(pg_num_rows($result) >= 1 && password_verify($password, $senhaRecuperada))
         {
-            $registro = pg_fetch_assoc($result);
             $id = $registro["id_usuario"];
-            $sql_select_usuario = "SELECT firstname FROM perfil WHERE id_usuario = " . $id;
+            $sql_select_usuario = "SELECT firstname, cpf FROM perfil WHERE id_usuario = " . $id;
             $result2 = pg_query($con, $sql_select_usuario);
             $registro2 = pg_fetch_assoc($result2);
             $usuario = $registro2["firstname"];
+            $cpf = $registro2["cpf"];
             if (pg_num_rows($result2) >= 1) {
                 $_SESSION['id_usuario'] = $id;
                 $_SESSION['username'] = $usuario;
-                header("Location: profile.php");
-                exit();
+                echo $remoteHost;
+                $_SESSION['id'] = $id;
+                //$_SESSION["validator"] = $cpf . $id . $remoteHost;
+                //header("Location: home.php");
+                //exit();
             } else {
                 echo 'Usuario nao encontrado';
             }

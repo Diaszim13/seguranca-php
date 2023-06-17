@@ -1,9 +1,38 @@
 <?php
 
+$_SERVER = "localhost";
+$_DB_NAME = "projseguranca";
+$_USERNAME = "postgres";
+$_PASSWORD = "1234";
+$con = null;
+
 session_start();
+
+try {
+    $con = pg_connect("host=$_SERVER user=$_USERNAME 
+                        password=$_PASSWORD dbname=$_DB_NAME");
+} catch (Exception $e) {
+    die("A conexão com o banco de dados falhou: " . $con->connect_error);
+}
 
 $text = $_SESSION['username'];
 //$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+if (isset($_SESSION['id'])) {
+    $sql_select_usuario = "SELECT cpf FROM perfil WHERE id_usuario = " . $_SESSION['id'];
+    $result2 = pg_query($con, $sql_select_usuario);
+    $registro2 = pg_fetch_assoc($result2);
+    $cpf = $registro2["cpf"];
+
+    if ($cpf . $_SESSION['id'] . $_SERVER["REMOTE_HOST"] != $_SESSION['validator']) {
+        echo $cpf . $_SESSION['id'] . $_SERVER["REMOTE_HOST"]; - $_SESSION['validator'];
+    }
+
+} else {
+    echo $_SESSION['id'];
+    //header("Location: index.php");
+    //exit;
+}
+
 
 ?>
 <!DOCTYPE html>

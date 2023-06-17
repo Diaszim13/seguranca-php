@@ -3,12 +3,11 @@
 $_SERVER = "localhost";
 $_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
-$_PASSWORD = "132465";
+$_PASSWORD = "1234";
 $con = null;
 
 
 try {
-    echo $_SERVER;
     $con = pg_connect("host=$_SERVER user=$_USERNAME 
 password=$_PASSWORD dbname=$_DB_NAME");
 } catch (Exception $e) {
@@ -21,67 +20,80 @@ if (isset($_POST['username'])) {
 if (isset($_POST['password'])) {
 
     $password = $_POST['password'];
+    $regex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/';
+    $resultado = false;
+
+    if (preg_match($regex, $password)) {
+        $resultado = true;
+        echo 'aqui';
+    }
 }
 
-if (isset($_POST['firstname'])) {
-    $firstname = $_POST['firstname'];
-}
-if (isset($_POST['lastname'])) {
+if ($resultado) {
+    if (isset($_POST['firstname'])) {
+        $firstname = $_POST['firstname'];
+    }
+    if (isset($_POST['lastname'])) {
 
-    $lastname = $_POST['lastname'];
-}
-if (isset($_POST['email'])) {
+        $lastname = $_POST['lastname'];
+    }
+    if (isset($_POST['email'])) {
 
-    $email = $_POST['email'];
-}
-if (isset($_POST['cpf'])) {
+        $email = $_POST['email'];
+    }
+    if (isset($_POST['cpf'])) {
 
-    $cpf = $_POST['cpf'];
-}
-if (isset($_POST['superscription'])) {
+        $cpf = $_POST['cpf'];
+    }
+    if (isset($_POST['superscription'])) {
 
-    $superscription = $_POST['superscription'];
-}
-if (isset($_POST['neighborhood'])) {
+        $superscription = $_POST['superscription'];
+    }
+    if (isset($_POST['neighborhood'])) {
 
-    $neighborhood = $_POST['neighborhood'];
-}
-if (isset($_POST['num'])) {
+        $neighborhood = $_POST['neighborhood'];
+    }
+    if (isset($_POST['num'])) {
 
-    $num = $_POST['num'];
-}
+        $num = $_POST['num'];
+    }
 
-$sql_select = "SELECT usuario from usuario where usuario LIKE '" . $username . "'";
+    $sql_select = "SELECT usuario from usuario where usuario LIKE '" . $username . "'";
 
-    try {
-        $result = pg_query($con, $sql_select);
-        if (pg_num_rows($result) == 0) {
-            $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$password') RETURNING id_usuario";
-            $r_insert_usuario = pg_query($con, $sql_insert);
-            if ($r_insert_usuario) {
-                $id = pg_fetch_result($r_insert_usuario, 0);
-                if (!empty($firstname) && !empty($email) && !empty($cpf) && !empty($id)) {
-                   try {
-                        $sql = "INSERT INTO perfil(id_perfil, id_usuario, firstname, lastname, email, cpf, superscription, neighborhood, num)
-                                    VALUES (nextval('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
-                        $r_insert_perfil = pg_query($con, $sql);
-                    } catch (Exception $e) {
-                        echo $e->getMessage();
+
+        try {
+            $result = pg_query($con, $sql_select);
+            if (pg_num_rows($result) == 0) {
+                $senhaCriptografada = password_hash($password, PASSWORD_DEFAULT);
+                $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$senhaCriptografada') RETURNING id_usuario";
+                $r_insert_usuario = pg_query($con, $sql_insert);
+                if ($r_insert_usuario) {
+                    $id = pg_fetch_result($r_insert_usuario, 0);
+                    if (!empty($firstname) && !empty($email) && !empty($cpf) && !empty($id)) {
+                    try {
+                            $sql = "INSERT INTO perfil(id_perfil, id_usuario, firstname, lastname, email, cpf, superscription, neighborhood, num)
+                                        VALUES (nextval('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
+                            $r_insert_perfil = pg_query($con, $sql);
+                        } catch (Exception $e) {
+                            echo $e->getMessage();
+                        }
+                        if ($r_insert_perfil) {
+                            header("Location: index.html");
+                            exit();
+                        }
+                    } else {
+                        echo "Os campos nome, e-mail e cpf são obrigatórios.";
                     }
-                    if ($r_insert_perfil) {
-                        header("Location: index.html");
-                        exit();
-                    }
-                } else {
-                    echo "Os campos nome, e-mail e cpf são obrigatórios.";
-                }
-            };
-        } else {
-            echo 'O nome do usuario já está cadastrado';
+                };
+            } else {
+                echo 'O nome do usuario já está cadastrado';
+            }
+
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
-
-    } catch (Exception $e) {
-        echo $e->getMessage();
+    } else {
+        echo 'Senha inválida ou fraca! Passe o mouse no icone "?" para visualizar os requisitos minímos da senha';
     }
 
 
