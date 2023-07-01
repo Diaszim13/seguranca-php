@@ -1,12 +1,16 @@
 <?php
 $ENV = parse_ini_file('.env');
 
-
 $_SERVER = $ENV['SERVER'];
 $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
 $con = null;
+session_start();
+$text = $_SESSION['username'];
+//$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+
 
 try {
     $con = pg_connect("host=$_SERVER user=$_USERNAME 
@@ -16,12 +20,48 @@ try {
 }
 
 $id_usuario = $_SESSION['id_usuario'];
+function createNote($con, $data, $id_usuario)
+{
+    $insert_notas = pg_query($con, "INSERT INTO nota (user_id, nota) VALUES ('".$id_usuario."', '".$data['nota']."')");
+    if($insert_notas){
+        echo "Nota inserida com sucesso!";
+    }
 
-$insert_notas = pg_query($con, "INSERT INTO nota (user_id, nota) VALUES ('".$id_usuario."', '".$data['nota']."')");
-if($insert_notas){
-    echo "Nota inserida com sucesso!";
 }
 
+//Fazer um botao para chamar essa query e inserir a nota
+
+
+
+
+
+if($_POST['nome'])
+{
+    $nome = $_POST['nome'];
+}
+
+if($_POST['email'])
+{
+    $email = $_POST['email'];
+}
+
+if($_POST['telefone'])
+{
+    $telefone = $_POST['telefone'];
+}
+
+if($_POST['data-nascimento'])
+{
+    $data_nascimento = $_POST['data-nascimento'];
+}
+
+//mostre exemplos de como se proteger de sql injection com php
+// $sql_insert_user = 'INSERT INTO profiles (user_id, nome, email, telefone, data_nascimento) VALUES (' . $user->id . ', ' . $nome . ', ' . $email . ', ' . $telefone . ', ' . $data_nascimento . ')';
+
+
+$sql_update_user = 'UPDATE profiles SET nome = ' . $nome . ', email = ' . $email . ', telefone = ' . $telefone . ', data_nascimento = ' . $data_nascimento . ' WHERE user_id = ' . $user->id;
+
+// $sql_select_user = 'SELECT * from profiles WHERE user_id = ' . $user->id;
 ?>
 
 
@@ -43,9 +83,9 @@ if($insert_notas){
       
         <div class="card m-5">
 
-              <h1>Perfil do usuário</h1>
+              <h1>Perfil do usuário: <?php echo $text ?></h1>
               <img src="./th-2674479128" class="rounded mx-auto d-block" style="width: 150px;" alt="Avatar" />
-            <table class="table">
+            <table class="table bg-dark">
                 <tbody>
                 <?php /* AQUI VAI PEGAR AS NOTAS DESSE USUARIO ESPECIFICO */
                         $query = pg_query($con, "SELECT * FROM nota n
@@ -80,19 +120,18 @@ if($insert_notas){
         </table>
     </div>
             </div>
-
-
             <div class="modal" tabindex="-1">
                 <div class="modal-dialog">
-                  <div class="modal-content">
+                <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">Modal title</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>Adicionar nota</p>
                     <div class="row">
                         <div class="col">
+                        <form action='createNote({$con}, {nota}, {id_usuario})'>
                             <input type="text" id="nota" name="nota" placeholder="Nome task">
                             <select name="user_id">
                             <?php
@@ -100,18 +139,19 @@ if($insert_notas){
                         echo pg_fetch_all($query);
                         foreach(pg_fetch_all($query) as $row)
                         {
-                            echo '<option value="'.$row["usuario"].'">'.$row["usuario"].'</option>';    
+                            echo '<option name="id_usuario" value="'.$row["usuario"].'">'.$row["usuario"].'</option>';    
                         }
-                        ?>    
+                        ?>
                         </select>
+                    </form>
                         </div>
-                      </div>
+                    </div>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" (click)="createNote()" class="btn btn-primary">Save changes</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
                     </div>
-                  </div>
+                </div>
                 </div>
               </div>
     </body>
