@@ -10,6 +10,23 @@ $con = null;
 
 session_start();
 
+$ipaddress = '';
+if (isset($_SERVER['HTTP_CLIENT_IP']))
+    $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+    $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+else if(isset($_SERVER['HTTP_X_FORWARDED']))
+    $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+    $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+else if(isset($_SERVER['HTTP_FORWARDED']))
+    $ipaddress = $_SERVER['HTTP_FORWARDED'];
+else if(isset($_SERVER['REMOTE_ADDR']))
+    $ipaddress = $_SERVER['REMOTE_ADDR'];
+else
+    $ipaddress = 'UNKNOWN';
+echo $ipaddress;
+
 try {
     $con = pg_connect("host=$_SERVER user=$_USERNAME 
                         password=$_PASSWORD dbname=$_DB_NAME");
@@ -17,7 +34,11 @@ try {
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
-$text = $_SESSION['username'];
+if (isset($_SESSION['username'])) {
+    $text = $_SESSION['username'];
+} else {
+    header("Location: index.html");
+}
 //$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 if (isset($_SESSION['id'])) {
     $sql_select_usuario = "SELECT cpf FROM perfil WHERE id_usuario = " . $_SESSION['id'];
@@ -25,14 +46,10 @@ if (isset($_SESSION['id'])) {
     $registro2 = pg_fetch_assoc($result2);
     $cpf = $registro2["cpf"];
 
-    if ($cpf . $_SESSION['id'] . $_SERVER["REMOTE_HOST"] != $_SESSION['validator']) {
-        echo $cpf . $_SESSION['id'] . $_SERVER["REMOTE_HOST"]; - $_SESSION['validator'];
+    if ($cpf . $_SESSION['id'] . $ipaddress != $_SESSION['validator']) {
+        echo $cpf . $_SESSION['id'] . $ipaddress - $_SESSION['validator'];
     }
 
-} else {
-    echo $_SESSION['id'];
-    //header("Location: index.php");
-    //exit;
 }
 
 

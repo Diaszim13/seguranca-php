@@ -51,13 +51,6 @@ else
     $ipaddress = 'UNKNOWN';
 echo $ipaddress;
 
-
-if (isset($_SERVER["REMOTE_ADDR"])) {
-    $remoteHost = $_SERVER['REMOTE_ADDR']; //$_SERVER["REMOTE_HOST"];
-} else {
-    $remoteHost = "nada";
-}
-
 try {
     // $con = pg_connect("host=$_SERVER1 user=$_USERNAME 
     //                     password=$_PASSWORD dbname=$_DB_NAME");
@@ -130,9 +123,8 @@ if (!empty($username) && !empty($password)) {
             if (pg_num_rows($result2) >= 1) {
                 $_SESSION['id_usuario'] = $id;
                 $_SESSION['username'] = $usuario;
-                echo $remoteHost;
                 $_SESSION['id'] = $id;
-                $_SESSION["validator"] = $cpf . $id . $remoteHost;
+                $_SESSION["validator"] = $cpf . $id . $ipaddress;
                 header("Location: home.php");
                 exit();
             } else {
