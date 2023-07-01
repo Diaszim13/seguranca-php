@@ -1,9 +1,11 @@
 <?php
 
-$_SERVER = "localhost";
-$_DB_NAME = "projseguranca";
-$_USERNAME = "postgres";
-$_PASSWORD = "1234";
+$ENV = parse_ini_file('.env');
+
+$_SERVER = $ENV['SERVER'];
+$_DB_NAME = $ENV['DB_NAME'];
+$_USERNAME = $ENV['USERNAME'];
+$_PASSWORD = $ENV['PASSWORD'];
 $con = null;
 
 session_start();

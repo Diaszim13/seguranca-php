@@ -7,7 +7,6 @@ $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
 $con = null;
-
 try {
     $con = pg_connect("host=$_SERVER user=$_USERNAME 
                         password=$_PASSWORD dbname=$_DB_NAME");
@@ -15,6 +14,8 @@ try {
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
+session_start();
+echo json_encode($_SESSION);
 $id_usuario = $_SESSION['id_usuario'];
 
 $insert_notas = pg_query($con, "INSERT INTO nota (user_id, nota) VALUES ('".$id_usuario."', '".$data['nota']."')");

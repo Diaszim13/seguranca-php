@@ -3,7 +3,7 @@
 $_SERVER = "localhost";
 $_DB_NAME = "projseguranca";
 $_USERNAME = "postgres";
-$_PASSWORD = "1234";
+$_PASSWORD = "132465";
 $con = null;
 
 session_start();
@@ -23,6 +23,7 @@ try {
 
 if (isset($_POST['username'])) {
     $username = $_POST['username'];
+    $_SESSION['username'] = $username;
 }
 if (isset($_POST['password'])) {
 
