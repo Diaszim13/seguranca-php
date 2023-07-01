@@ -19,6 +19,8 @@ try {
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
+session_start();
+echo json_encode($_SESSION);
 $id_usuario = $_SESSION['id_usuario'];
 function createNote($con, $data, $id_usuario)
 {

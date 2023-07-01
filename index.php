@@ -71,6 +71,7 @@ try {
 
 if (isset($_POST['username'])) {
     $username = $_POST['username'];
+    $_SESSION['username'] = $username;
 }
 if (isset($_POST['password'])) {
 
