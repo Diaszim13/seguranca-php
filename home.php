@@ -2,7 +2,7 @@
 
 $ENV = parse_ini_file('.env');
 
-$_SERVER = $ENV['SERVER'];
+$SERVER = $ENV['SERVER1'];
 $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
@@ -28,7 +28,7 @@ else
 echo $ipaddress;
 
 try {
-    $con = pg_connect("host=$_SERVER user=$_USERNAME 
+    $con = pg_connect("host=$SERVER user=$_USERNAME 
                         password=$_PASSWORD dbname=$_DB_NAME");
 } catch (Exception $e) {
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
@@ -39,7 +39,7 @@ if (isset($_SESSION['username'])) {
 } else {
     header("Location: index.html");
 }
-//$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+$deal_text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 if (isset($_SESSION['id'])) {
     $sql_select_usuario = "SELECT cpf FROM perfil WHERE id_usuario = " . $_SESSION['id'];
     $result2 = pg_query($con, $sql_select_usuario);
@@ -47,7 +47,7 @@ if (isset($_SESSION['id'])) {
     $cpf = $registro2["cpf"];
 
     if ($cpf . $_SESSION['id'] . $ipaddress != $_SESSION['validator']) {
-        echo $cpf . $_SESSION['id'] . $ipaddress - $_SESSION['validator'];
+        echo $cpf . $_SESSION['id'] . $ipaddress . '-' . $_SESSION['validator'];
     }
 
 }
@@ -71,10 +71,12 @@ if (isset($_SESSION['id'])) {
         <div class="container-fluid">
       
         <div class="card m-5">
-
-              <?php 
-              echo 'Olá ' . $text;
-              ?>
+            <div class="row p-5">
+            <?php 
+                echo 'Olá ' . $deal_text;
+            ?>
+              <a class="btn btn-primary p-2 w-25 m-2" href="profile.php" type="button"> <i class="bi bi-arrow-bar-right"></i> </a>
+              </div>
         </div>
         </div>
     </body>

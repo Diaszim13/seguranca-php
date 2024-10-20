@@ -1,7 +1,7 @@
 <?php
 $ENV = parse_ini_file('.env');
 
-$_SERVER = $ENV['SERVER'];
+$SERVER = $ENV['SERVER1'];
 $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
@@ -13,13 +13,12 @@ $text = $_SESSION['username'];
 
 
 try {
-    $con = pg_connect("host=$_SERVER user=$_USERNAME 
+    $con = pg_connect("host=$SERVER user=$_USERNAME 
                         password=$_PASSWORD dbname=$_DB_NAME");
 } catch (Exception $e) {
     die("A conexão com o banco de dados falhou: " . $con->connect_error);
 }
 
-session_start();
 echo json_encode($_SESSION);
 $id_usuario = $_SESSION['id_usuario'];
 function createNote($con, $data, $id_usuario)
@@ -37,35 +36,40 @@ function createNote($con, $data, $id_usuario)
 
 
 
-if($_POST['nome'])
-{
-    $nome = $_POST['nome'];
-}
+// if($_POST['nome'])
+// {
+//     $nome = $_POST['nome'];
+// }
 
-if($_POST['email'])
-{
-    $email = $_POST['email'];
-}
+// if($_POST['email'])
+// {
+//     $email = $_POST['email'];
+// }
 
-if($_POST['telefone'])
-{
-    $telefone = $_POST['telefone'];
-}
+// if($_POST['telefone'])
+// {
+//     $telefone = $_POST['telefone'];
+// }
 
-if($_POST['data-nascimento'])
-{
-    $data_nascimento = $_POST['data-nascimento'];
-}
+// if($_POST['data-nascimento'])
+// {
+//     $data_nascimento = $_POST['data-nascimento'];
+// }
 
 //mostre exemplos de como se proteger de sql injection com php
 // $sql_insert_user = 'INSERT INTO profiles (user_id, nome, email, telefone, data_nascimento) VALUES (' . $user->id . ', ' . $nome . ', ' . $email . ', ' . $telefone . ', ' . $data_nascimento . ')';
 
 
-$sql_update_user = 'UPDATE profiles SET nome = ' . $nome . ', email = ' . $email . ', telefone = ' . $telefone . ', data_nascimento = ' . $data_nascimento . ' WHERE user_id = ' . $user->id;
+// $sql_update_user = 'UPDATE profiles SET nome = ' . $nome . ', email = ' . $email . ', telefone = ' . $telefone . ', data_nascimento = ' . $data_nascimento . ' WHERE user_id = ' . $user->id;
 
 // $sql_select_user = 'SELECT * from profiles WHERE user_id = ' . $user->id;
 ?>
 
+<style>
+    .modal-body {
+        background-color: white;
+    }
+</style>
 
 <!DOCTYPE html>
 <html lang="pt-br"> 
@@ -87,7 +91,7 @@ $sql_update_user = 'UPDATE profiles SET nome = ' . $nome . ', email = ' . $email
 
               <h1>Perfil do usuário: <?php echo $text ?></h1>
               <img src="./th-2674479128" class="rounded mx-auto d-block" style="width: 150px;" alt="Avatar" />
-            <table class="table bg-dark">
+            <table class="table bg-white">
                 <tbody>
                 <?php /* AQUI VAI PEGAR AS NOTAS DESSE USUARIO ESPECIFICO */
                         $query = pg_query($con, "SELECT * FROM nota n
@@ -151,7 +155,7 @@ $sql_update_user = 'UPDATE profiles SET nome = ' . $nome . ', email = ' . $email
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>
+                      <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
                 </div>

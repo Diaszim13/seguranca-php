@@ -15,15 +15,19 @@
     
     <form method="POST" action="index.php" class="mx-auto">
       <div class="row">
-        <div class="col-4">
-          <label for="username">Usuário:</label>
-          <input type="text" id="username" name="username" required><br>
+        <div class="col-12">
+          <div class="form-group">
+            <label for="username">Usuário:</label>
+            <input class="form-control" type="text" id="username" name="username" required><br>
+          </div>
         </div>
       </div>
       <div class="row">
-        <div class="col-4">
-          <label for="password">Senha:</label>
-          <input type="text" id="password" name="password" required><br>
+        <div class="col-12">
+          <div class="form-group">
+            <label for="password">Senha:</label>
+            <input  class="form-control" type="password" id="password" name="password" required><br>
+          </div>
         </div>
       </div>
       <div class="row">
@@ -31,7 +35,7 @@
           <input class="btn btn-primary" type="submit" value="Entrar">
         </div>
         <div class="col mx-auto p-2">
-          <a class="btn btn-secondary" href="register.html">Cadastre-se</a>
+          <a type="button" class="btn btn-secondary" href="register.html">Cadastrar</a>
         </div>
       </div>
     </form>

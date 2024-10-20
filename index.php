@@ -1,18 +1,12 @@
 <?php
 $ENV = parse_ini_file('.env');
 
-$_SERVER = $ENV['SERVER'];
+$SERVER = $ENV['SERVER'];
+$_SERVER = $ENV['SERVER1'];
 $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
 $con = null;
-
-session_start();
-/*aqui eu crio uma sessao */
-if (!isset($_SESSION['initiated'])) {
-    session_regenerate_id();
-    $_SESSION['initiated'] = true;
-}
 
 /* aQUI DEFINO AS OPÇÕES DE SEGURANÇA */
 session_set_cookie_params([
@@ -21,7 +15,17 @@ session_set_cookie_params([
     'samesite' => 'Strict'
 ]);
 
-session_set_save_handler($customSessionHandler);
+// session_set_save_handler($customSessionHandler);
+
+session_start();
+
+/*aqui eu crio uma sessao */
+if (!isset($_SESSION['initiated'])) {
+    session_regenerate_id();
+    $_SESSION['initiated'] = true;
+}
+
+
 
 /*
 Use HTTPS: Certifique-se de que sua aplicação esteja sendo executada em uma conexão segura HTTPS. Isso ajuda a proteger a sessão 
@@ -49,15 +53,21 @@ else if(isset($_SERVER['REMOTE_ADDR']))
     $ipaddress = $_SERVER['REMOTE_ADDR'];
 else
     $ipaddress = 'UNKNOWN';
-echo $ipaddress;
+
+
+if (isset($_SERVER["REMOTE_ADDR"])) {
+    $remoteHost = $_SERVER['REMOTE_ADDR']; //$_SERVER["REMOTE_HOST"];
+} else {
+    $remoteHost = "nada";
+}
 
 try {
-    // $con = pg_connect("host=$_SERVER1 user=$_USERNAME 
-    //                     password=$_PASSWORD dbname=$_DB_NAME");
+    $con = pg_connect("host=$_SERVER1 user=$_USERNAME 
+                        password=$_PASSWORD dbname=$_DB_NAME");
 
     //CONECTAR NO BANCO USANDO PDO 
-    $pdo = new PDO($_SERVER1, $_USERNAME, $_PASSWORD);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // $pdo = new PDO($SERVER, $_USERNAME, $_PASSWORD);
+    // $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("A conexão com o banco de dados falhou: " . $e->getMessage());
 }
@@ -72,47 +82,46 @@ if (isset($_POST['password'])) {
 }
 
 if (!empty($username) && !empty($password)) {
-    //$query = "SELECT * FROM usuario WHERE usuario= " . $username . " AND senha = " .$password; // para acessar com qual quer usuario '132' OR 1=1
+    
+    $query = "SELECT * FROM usuario WHERE usuario = $username"; // para acessar com qual quer usuario botar isso no usuario 'asdfasdf' or 1 =1 
 
     // MODO SEGURO
-    $username = pg_escape_string($username); // aqui vai tratar a string para não deixar adicionar comandos
-    echo $password;
+    // $username = pg_escape_string($username); // aqui vai tratar a string para não deixar adicionar comandos
 
     //USANDO PREPARE STATEMEND
-    $sql = 'SELECT * from usuario where usuario = $user AND senha = $pass'; // $1 e $2 são os parametros que serão passados para o prepare
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue('$user', $username);
-    $stmt->bindValue('$pass', $password);
-    $stmt->execute();
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // $sql = 'SELECT * from usuario where usuario = :username AND senha = :pass'; // $1 e $2 são os parametros que serão passados para o prepare
+    // $stmt = $pdo->prepare($sql);
+    // $stmt->bindValue(':username', $username);
+    // $stmt->bindValue(':pass', $password);
+    // $stmt->execute();
+    // $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     //AQUI VAI VALIDAR SE O RESULTADO VEIO COMO UM BOOL
-    $valid = filter_var($result, FILTER_VALIDATE_BOOL);
-    if($valid === false)
-    {
-        echo "usuario ou senha errados";
-    }
-
-    $password = pg_escape_string($password); // AQUI VAI TIRAR OS ESPAÇOS DA SENHA
-    $query = "SELECT * FROM usuario WHERE usuario='$username' AND senha='$password'";
-    $result = pg_query($con, $query);
-
-    // $query = pg_prepare($con, "selc", "SELECT * FROM usuario WHERE usuario = $1 AND senha = $2");
-    // $result = pg_execute($con, "selc", array($username, $password));
-    // echo $password;
-
-    // try {
-    // }catch (PDOException $e)
+    // $valid = filter_var($result, FILTER_VALIDATE_BOOL);
+    // if($valid === false)
     // {
-    //     echo $e->getMessage();
+    //     echo "usuario ou senha errados";
     // }
 
+    // $password = pg_escape_string($password); // AQUI VAI TIRAR OS ESPAÇOS DA SENHA
+    // $query = pg_prepare($con, "selc", "SELECT * FROM usuario WHERE usuario = $1");
+    // $result = pg_execute($con, "selc", array($username));
 
     try {
         $result = pg_query($con, $query);
         $registro = pg_fetch_assoc($result);
-        $senhaRecuperada = $registro["senha"];
-        if(pg_num_rows($result) >= 1 && password_verify($password, $senhaRecuperada))
+        if($registro == false)
+        {
+            echo "usuario ou senha errados";
+            exit();
+        } else {
+            echo "Usuario encontrado!";
+        }
+
+        // echo json_encode($registro);
+        // $senhaRecuperada = $registro["senha"];
+        
+        if(pg_num_rows($result) >= 1 ) //&& password_verify($password, $senhaRecuperada)  
         {
             $id = $registro["id_usuario"];
             $sql_select_usuario = "SELECT firstname, cpf FROM perfil WHERE id_usuario = " . $id;
@@ -123,16 +132,18 @@ if (!empty($username) && !empty($password)) {
             if (pg_num_rows($result2) >= 1) {
                 $_SESSION['id_usuario'] = $id;
                 $_SESSION['username'] = $usuario;
+                echo $remoteHost;
                 $_SESSION['id'] = $id;
-                $_SESSION["validator"] = $cpf . $id . $ipaddress;
+                $_SESSION["validator"] = $cpf . $id . $remoteHost;
                 header("Location: home.php");
                 exit();
             } else {
                 echo 'Usuario nao encontrado';
             }
-        } else {
-            echo 'Usuario ou senha estão incorretos';
         }
+        //  else {
+        //     echo 'Usuario ou senha estão incorretos';
+        // }
     
     } catch (Exception $e) {
         echo $e->getMessage();

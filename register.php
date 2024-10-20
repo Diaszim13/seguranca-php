@@ -1,8 +1,9 @@
 <?php
-
 $ENV = parse_ini_file('.env');
 
-$_SERVER = $ENV['SERVER'];
+
+$_SERVER = $ENV['SERVER1'];
+// $_SERVER1 = $ENV['SERVER1'];
 $_DB_NAME = $ENV['DB_NAME'];
 $_USERNAME = $ENV['USERNAME'];
 $_PASSWORD = $ENV['PASSWORD'];
@@ -33,7 +34,7 @@ if (isset($_POST['password'])) {
 
 if (isset($resultado)) {
     if (isset($_POST['firstname'])) {
-        $firstname = $_POST['firstname'];
+        $firstname = $_POST['first  name'];
     }
     if (isset($_POST['lastname'])) {
 
@@ -66,15 +67,16 @@ if (isset($resultado)) {
         try {
             $result = pg_query($con, $sql_select);
             if (pg_num_rows($result) == 0) {
-                $senhaCriptografada = password_hash($password, PASSWORD_DEFAULT);
-                $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha) VALUES (nextval('public.seq_usuario'), '$username', '$senhaCriptografada') RETURNING id_usuario";
+                $senhaCriptografada = password_hash($password, PASSWORD_DEFAULT); // $2y$10$T0Kcav5bSijuS1M8I6znQervgh7aZZxbhkoduFhqrQgQYb9zNlM7C
+                $senhaCriptografadamd5 = md5($password); // 5f4dcc3b5aa765d61d8327deb882cf99
+                $sql_insert = "INSERT INTO usuario(id_usuario, usuario, senha, senha_md5) VALUES (nextval('public.seq_usuario'), '$username', '$senhaCriptografada', '$senhaCriptografadamd5') RETURNING id_usuario";
                 $r_insert_usuario = pg_query($con, $sql_insert);
                 if ($r_insert_usuario) {
                     $id = pg_fetch_result($r_insert_usuario, 0);
                     if (!empty($firstname) && !empty($email) && !empty($cpf) && !empty($id)) {
                     try {
                             $sql = "INSERT INTO perfil(id_perfil, id_usuario, firstname, lastname, email, cpf, superscription, neighborhood, num)
-                                        VALUES (nextval('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
+                                        VALUES (nextvracal('public.seq_perfil'), $id, '$firstname', '$lastname', '$email', '$cpf', '$superscription', '$neighborhood', '$num')";
                             $r_insert_perfil = pg_query($con, $sql);
                         } catch (Exception $e) {
                             echo $e->getMessage();
